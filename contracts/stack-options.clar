@@ -321,3 +321,43 @@
         (ok true)
     )
 )
+
+;; Gets current price from oracle
+(define-private (get-current-price)
+    (get price (unwrap! (map-get? price-feeds "BTC-USD") u0))
+)
+
+;; Helper to get option ID
+(define-private (get-option-id (option {
+        writer: principal,
+        holder: (optional principal),
+        collateral-amount: uint,
+        strike-price: uint,
+        premium: uint,
+        expiry: uint,
+        is-exercised: bool,
+        option-type: (string-ascii 4),
+        state: (string-ascii 9)
+    }))
+    (var-get next-option-id)
+)
+
+;; Checks if token is in approved list
+(define-private (is-approved-token (token principal))
+    (default-to false (map-get? approved-tokens token))
+)
+
+;; Checks if price feed symbol is allowed
+(define-private (is-allowed-symbol (symbol (string-ascii 10)))
+    (default-to false (map-get? allowed-symbols symbol))
+)
+
+;; Validates principal address
+(define-private (is-valid-principal (address principal))
+    (and 
+        (not (is-eq address (as-contract tx-sender)))  ;; Can't be the contract itself
+        (not (is-eq address .base))                    ;; Can't be base contract
+        (not (is-eq address tx-sender))                ;; Can't be the owner (prevent self-targeting)
+        true
+    )
+)
