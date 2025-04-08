@@ -361,3 +361,45 @@
         true
     )
 )
+
+;; Validates symbol string
+(define-private (is-valid-symbol (symbol (string-ascii 10)))
+    (and
+        (not (is-eq symbol ""))     ;; Can't be empty
+        (not (is-eq symbol " "))    ;; Can't be just whitespace
+        (>= (len symbol) u2)        ;; Must be at least 2 chars
+    )
+)
+
+;; Checks if token is critical to platform operation
+(define-private (is-critical-token (token principal))
+    (or 
+        (is-eq token .wrapped-btc)
+        (is-eq token .wrapped-stx)
+    )
+)
+
+;; Checks if symbol is critical to platform operation
+(define-private (is-critical-symbol (symbol (string-ascii 10)))
+    (or
+        (is-eq symbol "BTC-USD")
+        (is-eq symbol "STX-USD")
+    )
+)
+
+;; READ-ONLY FUNCTIONS
+
+;; Gets details for an option
+(define-read-only (get-option (option-id uint))
+    (map-get? options option-id)
+)
+
+;; Gets position information for a user
+(define-read-only (get-user-position (user principal))
+    (map-get? user-positions user)
+)
+
+;; Gets current protocol fee rate
+(define-read-only (get-protocol-fee-rate)
+    (var-get protocol-fee-rate)
+)
